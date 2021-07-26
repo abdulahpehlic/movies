@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.context;
 
 namespace backend.Migrations
 {
-    [DbContext(typeof(MovieContext))]
-    partial class MovieContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(DatabaseContext))]
+    [Migration("20210726195115_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,14 +21,21 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.context.Movie", b =>
                 {
-                    b.Property<decimal>("Id")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Duration")
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("Rating")
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal?>("RatingCount")
                         .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("ReleaseYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
@@ -38,11 +47,9 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.context.User", b =>
                 {
-                    b.Property<decimal>("Id")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Password")
                         .HasColumnType("text");
@@ -57,14 +64,18 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.context.UserRating", b =>
                 {
-                    b.Property<decimal>("Id")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
-                    b.Property<decimal?>("MovieId")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<long?>("MovieId")
+                        .HasColumnType("bigint");
 
-                    b.Property<decimal?>("UserId")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 

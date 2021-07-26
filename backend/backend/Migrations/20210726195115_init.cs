@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.EntityFrameworkCore.Metadata;
 
 namespace backend.Migrations
 {
-    public partial class movies : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -10,10 +11,13 @@ namespace backend.Migrations
                 name: "Movie",
                 columns: table => new
                 {
-                    Id = table.Column<decimal>(type: "decimal(18, 2)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Rating = table.Column<decimal>(type: "decimal(18, 2)", nullable: true),
                     RatingCount = table.Column<decimal>(type: "decimal(18, 2)", nullable: true),
-                    Title = table.Column<string>(type: "text", nullable: true)
+                    ReleaseYear = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Duration = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -21,12 +25,28 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Username = table.Column<string>(type: "text", nullable: true),
+                    Password = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserRating",
                 columns: table => new
                 {
-                    Id = table.Column<decimal>(type: "decimal(18, 2)", nullable: false),
-                    UserId = table.Column<decimal>(type: "decimal(18, 2)", nullable: true),
-                    MovieId = table.Column<decimal>(type: "decimal(18, 2)", nullable: true)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
+                    MovieId = table.Column<long>(type: "bigint", nullable: true),
+                    Rating = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,6 +83,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Movie");
+
+            migrationBuilder.DropTable(
+                name: "User");
         }
     }
 }

@@ -8,6 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using backend.Services;
+using backend.context;
+using AutoMapper;
 
 namespace backend.Controllers
 {
@@ -15,31 +18,52 @@ namespace backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        [HttpPost, Route("login")]
-        public IActionResult Login([FromBody] UserDTO user)
+        readonly UserService _userService;
+        public AuthController(DatabaseContext context, IMapper mapper)
         {
+            _userService = new UserService(context, mapper);
+        }
+
+        [HttpPost, Route("login")]
+        public IActionResult Login([FromBody] User user)
+        {
+            Task<string> tokenString;
             if (user == null)
             {
                 return BadRequest("Invalid request - User object empty!");
             }
-            if (user.Username == "johndoe" && user.Password == "def@123")
+            try
             {
-                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
-                var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-
-                var tokenOptions = new JwtSecurityToken(
-                    issuer: "https://localhost:5001",
-                    audience: "https://localhost:5001",
-                    claims: new List<Claim>(),
-                    expires: DateTime.Now.AddMinutes(30),
-                    signingCredentials: signingCredentials
-                );
-
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-                return Ok(new { Token = tokenString });
-
+                tokenString = _userService.Login(user);
+                if (tokenString.Result == "Not authenticated")
+                {
+                    return Unauthorized();
+                }
+                return Ok(new { Token = tokenString.Result });
+            } catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
             return Unauthorized();
+        }
+        [HttpPost, Route("register")]
+        public async Task<IActionResult> Register([FromBody] User user)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("User not valid");
+            }
+            if (_userService.DoesUserExist(user.Username)) {
+                return BadRequest("Username already exists");
+            }
+            try
+            {
+                return Ok(_userService.Register(user));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

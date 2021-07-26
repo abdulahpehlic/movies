@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend.context;
+using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,13 +17,12 @@ namespace backend.Controllers
     public class MoviesController : ControllerBase
     {
         readonly MovieService _movieService;
-        public MoviesController(MovieContext context, IMapper mapper)
+        public MoviesController(DatabaseContext context, IMapper mapper)
         {
             _movieService = new MovieService(context, mapper);
         }
         [HttpGet]
         [Route("toprated")]
-        [Authorize]
         public async Task<IActionResult> GetTopRated()
         {
             try
@@ -35,13 +35,14 @@ namespace backend.Controllers
             }
         }
         
-        [HttpGet]
-        [Route("updateRating/{id}/{rating}")]
-        public async Task<IActionResult> UpdateRating(decimal id, decimal rating)
+        [HttpPost]
+        [Route("updateRating/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateRating([FromBody] RatingDTO ratingRequest)
         {
             try
             {
-                return Ok(await _movieService.UpdateMovieRating(id, rating));
+                return Ok(await _movieService.UpdateMovieRating(ratingRequest));
             }
             catch (Exception e)
             {

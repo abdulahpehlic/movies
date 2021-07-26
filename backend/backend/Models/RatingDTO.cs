@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    public class UserDTO
+    public class RatingDTO
     {
-        public long Id { get; set; }
+        public int UserRating { get; set; }
         public string Username { get; set; }
-        public string Password { get; set; }
+        public int MovieId { get; set; }
     }
 }

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace backend.context
 {
-    public class MovieContext : DbContext
+    public class DatabaseContext : DbContext
     {
         private IConfiguration _configuration { get; }
-        public MovieContext(IConfiguration configuration)
+        public DatabaseContext(IConfiguration configuration)
         {
             _configuration = configuration;
         }

@@ -11,9 +11,9 @@ namespace backend.Services
 {
     public class MovieService
     {
-        readonly MovieContext _context;
+        readonly DatabaseContext _context;
         readonly IMapper _mapper;
-        public MovieService(MovieContext context, IMapper mapper)
+        public MovieService(DatabaseContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -27,18 +27,27 @@ namespace backend.Services
             return _mapper.Map<List<MovieDTO>>(movies.Take(10));
         }
 
-        public async Task<MovieDTO> UpdateMovieRating(decimal id, decimal rating)
+        public async Task<MovieDTO> UpdateMovieRating(RatingDTO rating)
         {
-            var movie = await _context.Movie.FirstOrDefaultAsync(x => x.Id == id);
-            movie.Rating = (movie.Rating * movie.RatingCount + rating) / (movie.RatingCount + 1);
+            var movieId = rating.MovieId;
+            var movie = await _context.Movie.FirstOrDefaultAsync(x => x.Id == movieId);
+            movie.Rating = (movie.Rating * movie.RatingCount + rating.UserRating) / (movie.RatingCount + 1);
             movie.RatingCount++;
-            //UserRating rating = new UserRating()
-            //{
-            //    Id = 0,
-            //    Movie = movie
-            //    User = 
-            //};
-            //_context.UserRating.Add(rating);
+            var user = await _context.User.FirstOrDefaultAsync(x => x.Username == rating.Username);
+            UserRating userRating = new UserRating()
+            {
+                Movie = movie,
+                User = user,
+                Rating = rating.UserRating
+            };
+            var exitingUserRating = await _context.UserRating.FirstOrDefaultAsync(x => x.Movie.Id == movieId && x.User.Id == user.Id);
+            if (exitingUserRating != null) {
+                movie.Rating = (movie.Rating * movie.RatingCount - exitingUserRating.Rating +rating.UserRating) / (movie.RatingCount);
+                movie.RatingCount--;
+                _context.UserRating.Remove(exitingUserRating);
+            }
+
+            _context.UserRating.Add(userRating);
             _context.SaveChanges();
             return _mapper.Map<MovieDTO>(movie);
             
