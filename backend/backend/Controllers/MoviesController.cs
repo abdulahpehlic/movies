@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.context;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,6 +22,7 @@ namespace backend.Controllers
         }
         [HttpGet]
         [Route("toprated")]
+        [Authorize]
         public async Task<IActionResult> GetTopRated()
         {
             try
